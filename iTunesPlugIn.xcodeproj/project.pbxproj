@@ -1,0 +1,331 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9542E97313D61AE600EE8D31 /* iTunesPlugIn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */; };
+		9542E97513D61AFE00EE8D31 /* iTunesAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9542E97413D61AFE00EE8D31 /* iTunesAPI.cpp */; };
+		DC13014513AB3AB40013DDA5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC13014413AB3AB40013DDA5 /* OpenGL.framework */; };
+		DC2667950BD9410900B4ED68 /* iTunesAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01285C0200CC31B17F000001 /* iTunesAPI.h */; };
+		DC2667960BD9410900B4ED68 /* iTunesVisualAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01285C0300CC31B17F000001 /* iTunesVisualAPI.h */; };
+		DC2667990BD9410900B4ED68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
+		DC26679A0BD9410900B4ED68 /* ReadMe.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 0103924500CE94127F000001 /* ReadMe.rtf */; };
+		DC26679C0BD9410900B4ED68 /* iTunesPlugInMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01285C0700CC38597F000001 /* iTunesPlugInMac.mm */; };
+		DC8CE6DF13A31B4500963E07 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8CE6DE13A31B4500963E07 /* Cocoa.framework */; };
+		DC8CE75A13A34EB500963E07 /* iTunesPlugIn.h in Headers */ = {isa = PBXBuildFile; fileRef = DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */; };
+		DEAD9F58140C4C4C00DE13E7 /* hack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DEAD9F56140C4C4C00DE13E7 /* hack.cpp */; };
+		DEAD9F59140C4C4C00DE13E7 /* hack.h in Headers */ = {isa = PBXBuildFile; fileRef = DEAD9F57140C4C4C00DE13E7 /* hack.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DEEF14DE145EBBC800A15517 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0103924500CE94127F000001 /* ReadMe.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = ReadMe.rtf; sourceTree = "<group>"; };
+		01285C0200CC31B17F000001 /* iTunesAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesAPI.h; sourceTree = "<group>"; };
+		01285C0300CC31B17F000001 /* iTunesVisualAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesVisualAPI.h; sourceTree = "<group>"; };
+		01285C0700CC38597F000001 /* iTunesPlugInMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iTunesPlugInMac.mm; sourceTree = "<group>"; };
+		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = iTunesPlugIn.cpp; sourceTree = "<group>"; };
+		9542E97413D61AFE00EE8D31 /* iTunesAPI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iTunesAPI.cpp; sourceTree = "<group>"; };
+		AF289ABC0CDFDCF200C8C0B4 /* iTunes_Visualizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iTunes_Visualizer-Info.plist"; sourceTree = "<group>"; };
+		DC13014413AB3AB40013DDA5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		DC2667A60BD9410900B4ED68 /* Disable m3u.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Disable m3u.bundle"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC8CE6DE13A31B4500963E07 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesPlugIn.h; sourceTree = "<group>"; };
+		DEAD9F56140C4C4C00DE13E7 /* hack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hack.cpp; sourceTree = "<group>"; };
+		DEAD9F57140C4C4C00DE13E7 /* hack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hack.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DC26679E0BD9410900B4ED68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC8CE6DF13A31B4500963E07 /* Cocoa.framework in Frameworks */,
+				DC13014513AB3AB40013DDA5 /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01285C0000CC31B17F000001 /* iTunesVisualAPI */ = {
+			isa = PBXGroup;
+			children = (
+				9542E97413D61AFE00EE8D31 /* iTunesAPI.cpp */,
+				01285C0200CC31B17F000001 /* iTunesAPI.h */,
+				01285C0300CC31B17F000001 /* iTunesVisualAPI.h */,
+			);
+			path = iTunesVisualAPI;
+			sourceTree = "<group>";
+		};
+		089C166AFE841209C02AAC07 /* iTunesPlugIn */ = {
+			isa = PBXGroup;
+			children = (
+				0103924500CE94127F000001 /* ReadMe.rtf */,
+				08FB77AFFE84173DC02AAC07 /* Source */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				089C1671FE841209C02AAC07 /* External Frameworks and Libraries */,
+				19C28FB6FE9D52B211CA2CBB /* Products */,
+			);
+			name = iTunesPlugIn;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				DC13014413AB3AB40013DDA5 /* OpenGL.framework */,
+				DC8CE6DE13A31B4500963E07 /* Cocoa.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AF289ABC0CDFDCF200C8C0B4 /* iTunes_Visualizer-Info.plist */,
+				089C167DFE841241C02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				DEAD9F56140C4C4C00DE13E7 /* hack.cpp */,
+				DEAD9F57140C4C4C00DE13E7 /* hack.h */,
+				DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */,
+				9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */,
+				01285C0700CC38597F000001 /* iTunesPlugInMac.mm */,
+				01285C0000CC31B17F000001 /* iTunesVisualAPI */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		19C28FB6FE9D52B211CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DC2667A60BD9410900B4ED68 /* Disable m3u.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DC2667940BD9410900B4ED68 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC2667950BD9410900B4ED68 /* iTunesAPI.h in Headers */,
+				DC2667960BD9410900B4ED68 /* iTunesVisualAPI.h in Headers */,
+				DC8CE75A13A34EB500963E07 /* iTunesPlugIn.h in Headers */,
+				DEAD9F59140C4C4C00DE13E7 /* hack.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		DC2667930BD9410900B4ED68 /* iTunes Visualizer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC2667A10BD9410900B4ED68 /* Build configuration list for PBXNativeTarget "iTunes Visualizer" */;
+			buildPhases = (
+				DC2667940BD9410900B4ED68 /* Headers */,
+				DC2667970BD9410900B4ED68 /* Resources */,
+				DC26679B0BD9410900B4ED68 /* Sources */,
+				DC26679E0BD9410900B4ED68 /* Frameworks */,
+				DEEF14DE145EBBC800A15517 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "iTunes Visualizer";
+			productInstallPath = "/Users/guillerm/Library/iTunes/iTunes Plug-ins";
+			productName = iTunesPlugIn;
+			productReference = DC2667A60BD9410900B4ED68 /* Disable m3u.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = AF2F40450BD811FE009D75EB /* Build configuration list for PBXProject "iTunesPlugIn" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 089C166AFE841209C02AAC07 /* iTunesPlugIn */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DC2667930BD9410900B4ED68 /* iTunes Visualizer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DC2667970BD9410900B4ED68 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC2667990BD9410900B4ED68 /* InfoPlist.strings in Resources */,
+				DC26679A0BD9410900B4ED68 /* ReadMe.rtf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DC26679B0BD9410900B4ED68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC26679C0BD9410900B4ED68 /* iTunesPlugInMac.mm in Sources */,
+				9542E97313D61AE600EE8D31 /* iTunesPlugIn.cpp in Sources */,
+				9542E97513D61AFE00EE8D31 /* iTunesAPI.cpp in Sources */,
+				DEAD9F58140C4C4C00DE13E7 /* hack.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C167DFE841241C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C167EFE841241C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		AF2F40460BD811FE009D75EB /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Development;
+		};
+		AF2F40470BD811FE009D75EB /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+					x86_64,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				SDKROOT = macosx;
+			};
+			name = Deployment;
+		};
+		DC2667A20BD9410900B4ED68 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "NS_BUILD_32_LIKE_64=1";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "iTunes_Visualizer-Info.plist";
+				LIBRARY_SEARCH_PATHS = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "Disable m3u";
+				REZ_EXECUTABLE = YES;
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				WRAPPER_EXTENSION = bundle;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		DC2667A30BD9410900B4ED68 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = "NS_BUILD_32_LIKE_64=1";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "iTunes_Visualizer-Info.plist";
+				LIBRARY_SEARCH_PATHS = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "iTunes Sample Visualizer";
+				REZ_EXECUTABLE = YES;
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				WRAPPER_EXTENSION = bundle;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AF2F40450BD811FE009D75EB /* Build configuration list for PBXProject "iTunesPlugIn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF2F40460BD811FE009D75EB /* Development */,
+				AF2F40470BD811FE009D75EB /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Deployment;
+		};
+		DC2667A10BD9410900B4ED68 /* Build configuration list for PBXNativeTarget "iTunes Visualizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC2667A20BD9410900B4ED68 /* Development */,
+				DC2667A30BD9410900B4ED68 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Deployment;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}
