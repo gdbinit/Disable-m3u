@@ -1,4 +1,20 @@
 /*
+ * ,------.  ,--.               ,--.   ,--.
+ * |  .-.  \ `--' ,---.  ,--,--.|  |-. |  | ,---.
+ * |  |  \  :,--.(  .-' ' ,-.  || .-. '|  || .-. :
+ * |  '--'  /|  |.-'  `)\ '-'  || `-' ||  |\   --.
+ * `-------' `--'`----'  `--`--' `---' `--' `----'
+ *
+ *                          ,---.
+ *           ,----.         |   |
+ * ,--,--,--.'.-.  |,--.,--.|  .'
+ * |        |  .' < |  ||  ||  |
+ * |  |  |  |/'-'  |'  ''  '`--'
+ * `--`--`--'`----'  `----' .--.
+ *                          '--'
+ *
+ * Disable m3u - An iTunes plugin to disable m3u playlists processing
+ *
  * File:       iTunesPlugIn.cpp
  *
  * Abstract:   Visual plug-in for iTunes.  Cross-platform code.
@@ -13,8 +29,6 @@
 
 #include "iTunesPlugIn.h"
 #include "hack.h"
-
-extern uint8_t patchactivated;
 
 //-------------------------------------------------------------------------------------------------
 // ProcessRenderData
@@ -58,54 +72,11 @@ void UpdatePulseRate( VisualPluginData * visualPluginData, UInt32 * ioPulseRate 
 }
 
 //-------------------------------------------------------------------------------------------------
-//	UpdateTrackInfo
-//-------------------------------------------------------------------------------------------------
-//
-/*
-void UpdateTrackInfo( VisualPluginData * visualPluginData, ITTrackInfo * trackInfo, ITStreamInfo * streamInfo )
-{
-	if ( trackInfo != NULL )
-		visualPluginData->trackInfo = *trackInfo;
-	else
-		memset( &visualPluginData->trackInfo, 0, sizeof(visualPluginData->trackInfo) );
-	
-	if ( streamInfo != NULL )
-		visualPluginData->streamInfo = *streamInfo;
-	else
-		memset( &visualPluginData->streamInfo, 0, sizeof(visualPluginData->streamInfo) );
-	
-	UpdateInfoTimeOut( visualPluginData );
-}
-*/
-//-------------------------------------------------------------------------------------------------
-//	RequestArtwork
-//-------------------------------------------------------------------------------------------------
-//
-/*
-static void RequestArtwork( VisualPluginData * visualPluginData )
-{
-	// only request artwork if this plugin is active
-	if ( visualPluginData->destView != NULL )
-	{
-		OSStatus		status;
-		
-		status = PlayerRequestCurrentTrackCoverArt( visualPluginData->appCookie, visualPluginData->appProc );
-	}
-}
-*/
-//-------------------------------------------------------------------------------------------------
 //	PulseVisual
 //-------------------------------------------------------------------------------------------------
 //
 void PulseVisual( VisualPluginData * visualPluginData, UInt32 timeStampID, const RenderVisualData * renderData, UInt32 * ioPulseRate )
 {
-	/*
-	// update internal state
-	ProcessRenderData( visualPluginData, timeStampID, renderData );
-	
-	// if desired, adjust the pulse rate
-	UpdatePulseRate( visualPluginData, ioPulseRate );
-	 */
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -120,7 +91,8 @@ static OSStatus VisualPluginHandler(OSType message,VisualPluginMessageInfo *mess
 	visualPluginData = (VisualPluginData*) refCon;
 	
 	status = noErr;
-	
+	static struct header_info header_info;
+    
 	switch ( message )
 	{
 			/*
@@ -129,17 +101,7 @@ static OSStatus VisualPluginHandler(OSType message,VisualPluginMessageInfo *mess
 			 */		
 		case kVisualPluginInitMessage:
 		{
-			// get a send right
-			mach_port_t myself = mach_task_self();
-			uint64_t imageaddress;
-			uint64_t imagesize;
-			
-			find_image(myself, &imageaddress, &imagesize);
-			find_patchaddresses(myself, imageaddress, imagesize);
-			
-			patchmemory();
-			patchactivated = 1;
-			
+			disable_m3u_processing(&header_info);
 			break;
 		}
 			/*
@@ -177,7 +139,7 @@ static OSStatus VisualPluginHandler(OSType message,VisualPluginMessageInfo *mess
 		case kVisualPluginConfigureMessage:
 		{
 			// unpatch if we call plugin configuration
-			unpatchmemory();
+            enable_m3u_processing(&header_info);
 			break;
 		}
 			/*
@@ -187,8 +149,10 @@ static OSStatus VisualPluginHandler(OSType message,VisualPluginMessageInfo *mess
 		case kVisualPluginActivateMessage:
 		{
 			// verify if it was already patched, if not patch it
-			if (patchactivated != 1)
-				patchmemory();
+			if (header_info.active != 1)
+            {
+                disable_m3u_processing(&header_info);
+            }
 			
 			break;
 		}	

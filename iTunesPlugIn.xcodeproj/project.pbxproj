@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B0D284A17145BDF00EF8EC1 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 7B0D284917145BDF00EF8EC1 /* README */; };
 		9542E97313D61AE600EE8D31 /* iTunesPlugIn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */; };
 		9542E97513D61AFE00EE8D31 /* iTunesAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9542E97413D61AFE00EE8D31 /* iTunesAPI.cpp */; };
 		DC13014513AB3AB40013DDA5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC13014413AB3AB40013DDA5 /* OpenGL.framework */; };
@@ -39,6 +40,7 @@
 		01285C0300CC31B17F000001 /* iTunesVisualAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesVisualAPI.h; sourceTree = "<group>"; };
 		01285C0700CC38597F000001 /* iTunesPlugInMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iTunesPlugInMac.mm; sourceTree = "<group>"; };
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7B0D284917145BDF00EF8EC1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = iTunesPlugIn.cpp; sourceTree = "<group>"; };
 		9542E97413D61AFE00EE8D31 /* iTunesAPI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iTunesAPI.cpp; sourceTree = "<group>"; };
 		AF289ABC0CDFDCF200C8C0B4 /* iTunes_Visualizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iTunes_Visualizer-Info.plist"; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				0103924500CE94127F000001 /* ReadMe.rtf */,
+				7B0D284917145BDF00EF8EC1 /* README */,
 				08FB77AFFE84173DC02AAC07 /* Source */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				089C1671FE841209C02AAC07 /* External Frameworks and Libraries */,
@@ -108,8 +111,8 @@
 			children = (
 				DEAD9F56140C4C4C00DE13E7 /* hack.cpp */,
 				DEAD9F57140C4C4C00DE13E7 /* hack.h */,
-				DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */,
 				9542E97213D61AE600EE8D31 /* iTunesPlugIn.cpp */,
+				DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */,
 				01285C0700CC38597F000001 /* iTunesPlugInMac.mm */,
 				01285C0000CC31B17F000001 /* iTunesVisualAPI */,
 			);
@@ -166,6 +169,9 @@
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+			};
 			buildConfigurationList = AF2F40450BD811FE009D75EB /* Build configuration list for PBXProject "iTunesPlugIn" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -192,6 +198,7 @@
 			files = (
 				DC2667990BD9410900B4ED68 /* InfoPlist.strings in Resources */,
 				DC26679A0BD9410900B4ED68 /* ReadMe.rtf in Resources */,
+				7B0D284A17145BDF00EF8EC1 /* README in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,8 +233,8 @@
 		AF2F40460BD811FE009D75EB /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				SDKROOT = macosx;
 			};
 			name = Development;
@@ -235,11 +242,7 @@
 		AF2F40470BD811FE009D75EB /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-					x86_64,
-				);
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				SDKROOT = macosx;
 			};
@@ -249,6 +252,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -279,6 +283,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_OPTIMIZATION_LEVEL = s;

@@ -1,29 +1,101 @@
 /*
- *  hack.cpp
- *  iTunesPlugIn
+ * ,------.  ,--.               ,--.   ,--.
+ * |  .-.  \ `--' ,---.  ,--,--.|  |-. |  | ,---.
+ * |  |  \  :,--.(  .-' ' ,-.  || .-. '|  || .-. :
+ * |  '--'  /|  |.-'  `)\ '-'  || `-' ||  |\   --.
+ * `-------' `--'`----'  `--`--' `---' `--' `----'
  *
- *  Created by fG! on 8/29/11.
- *  Copyright 2011 fG!. All rights reserved.
+ *                          ,---.
+ *           ,----.         |   |
+ * ,--,--,--.'.-.  |,--.,--.|  .'
+ * |        |  .' < |  ||  ||  |
+ * |  |  |  |/'-'  |'  ''  '`--'
+ * `--`--`--'`----'  `----' .--.
+ *                          '--'
  *
- *  reverser@put.as - http://reverse.put.as
+ * Disable m3u - An iTunes plugin to disable m3u playlists processing
+ *
+ * Copyright (c) fG!, 2011, 2012, 2013 - reverser@put.as - http://reverse.put.as
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ * derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * hack.cpp
  *
  */
 
 #include "hack.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <mach/mach.h>
+#include <mach/mach_types.h>
+#include <mach/mach_vm.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <mach-o/loader.h>
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
 
+#define EXIT_ON_MACH_ERROR(msg, retval) \
+if (kr != KERN_SUCCESS) { mach_error(msg ":" , kr); exit((retval)); }
 
 #define DEBUG 1
-uint8_t patchactivated = 0;
-// variables to hold addresses of __cstring and __text
-uint64_t cstringaddr;
-uint64_t cstringsize;
-uint64_t textbaseaddr;
-mach_vm_address_t address1, address2;
 
+// local functions
+static void patchmemory(mach_vm_address_t address);
+static void unpatchmemory(struct header_info *hi);
+static int find_image(struct header_info *hi);
+static void find_and_patch_addresses(struct header_info *hi);
 
-void patchmemory(void)
+#pragma mark The exported functions
+
+void
+disable_m3u_processing(struct header_info *hi)
 {
-	kern_return_t kr;
+    if (find_image(hi)) return;
+    find_and_patch_addresses(hi);
+    hi->active = 0;
+}
+
+void
+enable_m3u_processing(struct header_info *hi)
+{
+    unpatchmemory(hi);
+    hi->active = 0;
+}
+
+#pragma mark Internal helper functions
+
+/*
+ * patch addresses by modifying m3u string to m5u
+ */
+void
+patchmemory(mach_vm_address_t address)
+{
+	kern_return_t kr = 0;
 	mach_port_t myself = 0;
 	// get a send right
 	myself = mach_task_self();
@@ -31,9 +103,7 @@ void patchmemory(void)
 	printf("[DEBUG] Changing memory protections...\n");
 #endif
 	// change memory protection
-	kr = mach_vm_protect(myself, (mach_vm_address_t)address1, (mach_vm_size_t)4096, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	kr = mach_vm_protect(myself, (mach_vm_address_t)address2, (mach_vm_size_t)4096, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+	kr = mach_vm_protect(myself, address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
 	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
 	
 	// the new byte to write
@@ -44,333 +114,131 @@ void patchmemory(void)
 	printf("[DEBUG] Patching bytes...\n");
 #endif
 	// and write the new byte (strings will be modified to m5u and m5u8)
-	kr = mach_vm_write(myself, (mach_vm_address_t)address1+1, (vm_offset_t)&opcode, len); 
+	kr = mach_vm_write(myself, address+1, (vm_offset_t)&opcode, len);
 	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	kr = mach_vm_write(myself, (mach_vm_address_t)address2+1, (vm_offset_t)&opcode, len);
+    // restore original protections
+	kr = mach_vm_protect(myself, address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
 	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
 }
 
-void unpatchmemory(void)
+/*
+ * iterate over the patch_addresses array and restore original byte
+ */
+void
+unpatchmemory(struct header_info *hi)
 {
-	kern_return_t kr;
-	mach_port_t myself=0;
+	kern_return_t kr = 0;
+	mach_port_t myself = 0;
 	// get a send right
 	myself = mach_task_self();
 #if DEBUG
 	printf("[DEBUG] Changing memory protections...\n");
-#endif	
-	// change memory protection
-	kr = mach_vm_protect(myself, (mach_vm_address_t)address1, (mach_vm_size_t)4096, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	kr = mach_vm_protect(myself, (mach_vm_address_t)address2, (mach_vm_size_t)4096, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	
-	// the new byte to write
-	uint8_t opcode = 0x33;
-	// number of bytes to write
-	mach_vm_size_t len = 1;
+#endif
+    int index = 0;
+    while (hi->patch_addresses[index] != 0)
+    {
+        printf("Patching %p\n", (void*)hi->patch_addresses[index]);
+        // change memory protection
+        kr = mach_vm_protect(myself, hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        // the new byte to write
+        uint8_t opcode = 0x33;
+        // number of bytes to write
+        mach_vm_size_t len = 1;
 #if DEBUG
-	printf("[DEBUG] Unpatching bytes...\n");
-#endif	
-	// and write the new byte (strings will be modified to m3u and m3u8)
-	kr = mach_vm_write(myself, (mach_vm_address_t)address1+1, (vm_offset_t)&opcode, len); 
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	kr = mach_vm_write(myself, (mach_vm_address_t)address2+1, (vm_offset_t)&opcode, len);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	patchactivated = 0;
+        printf("[DEBUG] Unpatching bytes...\n");
+#endif
+        // and write the new byte (strings will be modified to m3u and m3u8)
+        kr = mach_vm_write(myself, hi->patch_addresses[index]+1, (vm_offset_t)&opcode, len);
+        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        // restore original protections
+        kr = mach_vm_protect(myself, hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
+        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        index++;
+    }
+    memset(hi->patch_addresses, '\0', 16*sizeof(mach_vm_address_t));
 }
 
 
-void find_patchaddresses(mach_port_t myself, uint64_t imageaddress, uint64_t imagesize)
+/*
+ * iterate over __cstring section to find location of m3u and m3u8 strings, and patch'em!
+ * could be better :-)
+ */
+void
+find_and_patch_addresses(struct header_info *hi)
 {
-	kern_return_t kr;
-	mach_msg_type_number_t bytesread;
-	vm_offset_t cstringarray;
-	
-	// read the whole __TEXT segment into memory
-	vm_offset_t executable;
-	kr = mach_vm_read(myself, (mach_vm_address_t)imageaddress, (mach_vm_size_t)imagesize, &executable, &bytesread);
-	EXIT_ON_MACH_ERROR("mach_vm_read", kr);
-	
-	// get the address of the __cstring and __text section
-	get_textseg_vmaddr(executable, 0);
-#if DEBUG
-	printf("[DEBUG] cstringaddr %p, cstringsize %p, __text %p\n", (void*)cstringaddr, (void*)cstringsize, (void*)textbaseaddr);
-#endif
-	/* 
-	 we need to compute the real address for Lion due to ASLR
-	 imageaddress gives us the aslr'ed address of where program image is located (LC_SEGMENT_64/__TEXT)
-	 (cstringaddr - textbaseaddr) computes the delta from cstring to __TEXT load cmd
-	 which we can add to imageaddress to find the aslr'ed address of cstring segment
-	 */
-#if __LP64__
-	cstringaddr = (cstringaddr - textbaseaddr) + imageaddress;
-#endif
-	// read the whole __cstring section
-	kr = mach_vm_read(myself, (mach_vm_address_t)cstringaddr, (mach_vm_size_t)cstringsize, &cstringarray, &bytesread);
-	EXIT_ON_MACH_ERROR("mach_vm_read", kr);
-	
+    // get pointer to the __cstring section
+    const struct section_64 *cstring_section = getsectbynamefromheader_64(hi->mh, "__TEXT", "__cstring");
+    // header values do not have ASLR slide so fix it
+    mach_vm_address_t cstring_addr = cstring_section->addr + hi->aslr_slide;
 	// search for the addresses of the right strings to be patched
-	
-	uint32_t w;
-	for (w=0 ; w < cstringsize; w++)
+    char *cstring_mem = (char*)cstring_addr;
+    int index = 0;
+    
+	for (uint64_t w = 0 ; w < cstring_section->size; w++)
 	{   
 		// match m3u
-		if (*(int*)cstringarray == 0x0075336d)
+		if (*(int*)cstring_mem == 0x0075336d)
 		{
-			address1 = cstringaddr + w;
+            mach_vm_address_t patch_addr = cstring_addr + w;
+            hi->patch_addresses[index++] = patch_addr;
+            patchmemory(patch_addr);
 #if DEBUG
-			printf("[DEBUG] Found 1st address to be patched %p\n", (void*)address1);
+			printf("[DEBUG] Found m3u address to be patched %p\n", (void*)patch_addr);
 #endif
 		}
 		// match first bytes of m3u8
-		else if (*(int*)cstringarray == 0x3875336d)
+		else if (*(int*)cstring_mem == 0x3875336d)
 		{
-			address2 = cstringaddr + w;
+            mach_vm_address_t patch_addr = cstring_addr + w;
+            hi->patch_addresses[index++] = patch_addr;
+            patchmemory(patch_addr);
 #if DEBUG
-			printf("[DEBUG] Found 2nd address to be patched %p\n", (void*)address2);
+			printf("[DEBUG] Found m3u8 address to be patched %p\n", (void*)patch_addr);
 #endif
 		}
 		// move to the next byte in the array
-		(char*)cstringarray++;
+		cstring_mem++;
 	}
-	// and deallocate
-	kr = mach_vm_deallocate(mach_task_self(), cstringarray, cstringsize);
-	EXIT_ON_MACH_ERROR("mach_vm_deallocate", kr);
-	kr = mach_vm_deallocate(mach_task_self(), executable, imagesize);
-	EXIT_ON_MACH_ERROR("mach_vm_deallocate", kr);	
 }
+
 
 /*
- find the memory address where the target was loaded to
- this is due to full ASLR in Lion
- we also use it for Snow Leopard to avoid opening the binary and parse the mach-o header
+ * find the memory address where the target was loaded to
+ * this is due to full ASLR in Lion
+ * we also use it for Snow Leopard to avoid opening the binary and parse the mach-o header
  */
-uint64_t find_image(mach_port_t targettask, uint64_t *addr, uint64_t *size)
+int
+find_image(struct header_info *hi)
 {
-	kern_return_t kr;
-	vm_address_t address = 0;
-	vm_size_t lsize = 0;
-	uint32_t depth = 1;
-	mach_msg_type_number_t bytesread;
-	vm_offset_t magicnumber;
-	
-	while (1) 
-	{
-		struct vm_region_submap_info_64 info;
-		mach_msg_type_number_t count = VM_REGION_SUBMAP_INFO_COUNT_64;
-		kr = vm_region_recurse_64(targettask, &address, &lsize, &depth, (vm_region_info_64_t)&info, &count);
-		if (kr == KERN_INVALID_ADDRESS)
-		{
-			break;
-		}
-		if (info.is_submap)
-		{
-			depth++;
-		}
-		else 
-		{
-			//do stuff
+    // get mach-o header of iTunes image (main binary is usually (always?) index 0)
+    // XXX: this can be made error-proof by iterating all images and match iTunes
+    const struct mach_header *mh = _dyld_get_image_header(0);
+    intptr_t aslr_slide = _dyld_get_image_vmaddr_slide(0);
 #if DEBUG
-			printf ("[DEBUG] Found region: %08lx to %08lx\n", address, address+lsize);
+    printf("[DEBUG] Aslr slide is %p\n", (void*)aslr_slide);
 #endif
-			// try to read first 4 bytes
-			kr = mach_vm_read(targettask, (mach_vm_address_t)address, (mach_vm_size_t)4, &magicnumber, &bytesread);
-			// avoid deferencing an invalid memory location (for example PAGEZERO segment)
-			if (kr == KERN_SUCCESS & bytesread == 4)
-			{
-				// verify if it's a mach-o binary at that memory location
-				if (*(unsigned int*)magicnumber == MH_MAGIC ||
-					*(unsigned int*)magicnumber == MH_MAGIC_64)
-				{
-#if DEBUG
-					printf("[DEBUG] found program image!\n");
-#endif
-					*addr = address;
-					*size = lsize;
-					break;
-				}
-			}
-			address += lsize;
-		}
-	}
-	return(0);
-}
 
-
-// this will get the __TEXT segment vmaddr of any mach-o executable
-uint64_t get_textseg_vmaddr (vm_offset_t buf, int8_t cputype)
-{
-    // STEP 1: parse MACH-O HEADER so we know what to dump
+    // compute iTunes image size
+    uint64_t image_size = 0;
+    if (mh->magic != MH_MAGIC_64) return 1;
     
-	uint32_t intel_base = 0x0, narchs = 0x0;
-	uint64_t x64_base = 0x0;
-#if __LP64__
-	uint64_t vmaddr;
-#else
-	uint32_t vmaddr;
-#endif
-	unsigned int i=0;
-    
-	struct fat_header *fh; /* fat header */
-	struct fat_arch *fa; /* fat arch */
-	
-	/* do we have a fat binary?
-	 * if that's the case, start parsing the fat header
-	 */
-	if (ntohl(*(unsigned int*)buf) == FAT_MAGIC) 
-	{
-		fh = (struct fat_header *)(buf);
-		narchs = ntohl(fh->nfat_arch);
-#if DEBUG
-		printf( "[DEBUG]  found fat header with %x archs\n", narchs);
-#endif DEBUG
-        fa = (struct fat_arch *)(buf + sizeof(struct fat_header));
-        // grab the offsets from the header			   
-        for (i = 0; i < narchs; i++) 
+    struct load_command *load_cmd = NULL;
+    char *load_cmd_addr = (char*)mh + sizeof(struct mach_header_64);
+    for (uint32_t i = 0; i < mh->ncmds; i++)
+    {
+        load_cmd = (struct load_command*)load_cmd_addr;
+        if (load_cmd->cmd == LC_SEGMENT_64)
         {
-            switch (ntohl(fa->cputype)) 
-            {
-                case CPU_TYPE_I386:
-                    intel_base = ntohl(fa->offset);
-#if DEBUG 
-                    printf("[DEBUG] intel offset: %p\n", (void*)intel_base);
-#endif
-                    break;
-					// FIXME
-                case CPU_TYPE_X86_64:
-                    x64_base = ntohl(fa->offset);
-#if DEBUG 
-                    printf("[DEBUG] intel x64 offset: %p\n", (void*)x64_base);
-#endif												
-                    break;
-                default:
-                    break;
-            }
-			
-            fa += ((sizeof(struct fat_arch) * i) + 1);
+            struct segment_command_64 *seg_cmd = (struct segment_command_64*)load_cmd;
+            image_size += seg_cmd->vmsize;
         }
-		// retrieve the offset information for current cpu
-		printf("[INFO] Reading and processing the mach-o header...\n");
-#if __LP64__
-		vmaddr = get_offset(buf, x64_base, CPU_TYPE_X86_64);
-#else
-		vmaddr = get_offset(buf, intel_base, CPU_TYPE_I386);
-#endif
-	}
-	else 
-	{ /* if not, check the mach header */
-#if DEBUG
-		printf("[DEBUG]  this is not a fat binary, checking arch ...\n");
-#endif
-		fflush(stderr);
-		if (*(unsigned int*)buf == MH_MAGIC ||
-			*(unsigned int*)buf == MH_MAGIC_64)
-		{
-            // retrieve the offset information for current cpu
-#if __LP64__
-			vmaddr = get_offset(buf, 0, CPU_TYPE_X86_64);
-#else
-			vmaddr = get_offset(buf, 0, CPU_TYPE_I386);
-#endif
-		}
-	}
+        load_cmd_addr += load_cmd->cmdsize;
+    }
     
-	if (vmaddr != 1)
-	{
-		return(vmaddr);
-	}
-	else 
-	{
-		return(1);
-	}
-    
-}
-
-
-// auxiliary function for get_textseg_vmaddr
-uint64_t get_offset(vm_offset_t buf, uint64_t base, uint32_t arch)
-{
-#if DEBUG
-	printf("[DEBUG] Start get_offset\n");
-#endif
-	uint32_t i,x;
-	uint32_t ncmds, cmd;
-#if __LP64__
-	uint64_t vmaddr;
-	
-	struct mach_header_64 *machheader; /* mach header */
-	struct load_command *loadcmd; /* load commands */
-	struct segment_command_64 *segcmd; /* segment command */
-	struct section_64 *sectioncmd;
-	
-	machheader = (struct mach_header_64 *)(buf + base);
-	loadcmd = (struct load_command*)((char*)machheader + sizeof(struct mach_header_64));
-	
-#else
-	uint32_t vmaddr;
-	
-	struct mach_header *machheader; /* mach header */
-	struct load_command *loadcmd; /* load commands */
-	struct segment_command *segcmd; /* segment command */
-	struct section *sectioncmd; /* section */
-	machheader = (struct mach_header *)(buf + (uint32_t)base);
-	loadcmd = (struct load_command*)((char*)machheader + sizeof(struct mach_header));
-#endif
-    
-	ncmds = machheader->ncmds;
-#if DEBUG
-	printf("[DEBUG] Nr of cmds %d\n", ncmds);
-#endif
-	
-	for (i = 0; i < ncmds; i++) 
-	{
-		
-		cmd = loadcmd->cmd;
-#if __LP64__
-		if (cmd != LC_SEGMENT_64)
-			goto end;
-		segcmd = (struct segment_command_64 *)loadcmd;
-#else
-		if (cmd != LC_SEGMENT)
-			goto end;
-		segcmd = (struct segment_command *)loadcmd;
-#endif
-		
-		// skip other segments except __TEXT
-#if DEBUG
-		printf("[DEBUG] Segment name %s\n", segcmd->segname);
-#endif
-		if (strcmp(segcmd->segname, "__TEXT"))
-            goto end;
-        
-        textbaseaddr = segcmd->vmaddr;
-#if DEBUG
-        printf("[DEBUG] textbaseaddr is %p\n", (void*)textbaseaddr);
-#endif
-        
-#if __LP64__
-		sectioncmd = (struct section_64*)((char*)segcmd + sizeof(struct segment_command_64));
-#else
-        sectioncmd = (struct section*)((char*)segcmd + sizeof(struct segment_command));
-#endif
-		
-        for (x = 0; x < segcmd->nsects; x++)
-        {
-            if (strcmp(sectioncmd->sectname, "__cstring") == 0)
-            {
-#if DEBUG
-				printf("[DEBUG] Found __cstring! %p\n", (void*)sectioncmd->addr);
-#endif
-                cstringaddr = sectioncmd->addr;
-                cstringsize = sectioncmd->size;
-                break;
-            }
-            sectioncmd++;
-        }
-    end:
-        loadcmd = (struct load_command*)((char*)loadcmd + loadcmd->cmdsize);
-		
-	}
-	return(vmaddr);
+    hi->mh = (const struct mach_header_64*)mh;
+    hi->image_size = image_size;
+    hi->aslr_slide = aslr_slide;
+    memset(hi->patch_addresses, '\0', 16*sizeof(mach_vm_address_t));
+	return 0;
 }

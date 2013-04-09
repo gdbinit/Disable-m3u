@@ -1,0 +1,34 @@
+
+ ,------.  ,--.               ,--.   ,--.
+ |  .-.  \ `--' ,---.  ,--,--.|  |-. |  | ,---.
+ |  |  \  :,--.(  .-' ' ,-.  || .-. '|  || .-. :
+ |  '--'  /|  |.-'  `)\ '-'  || `-' ||  |\   --.
+ `-------' `--'`----'  `--`--' `---' `--' `----'
+
+                          ,---.
+           ,----.         |   |
+ ,--,--,--.'.-.  |,--.,--.|  .'
+ |        |  .' < |  ||  ||  |
+ |  |  |  |/'-'  |'  ''  '`--'
+ `--`--`--'`----'  `----' .--.
+                          '--'
+
+ Disable m3u - An iTunes plugin to disable m3u playlists processing
+
+ Copyright (c) fG!, 2011, 2012, 2013 - reverser@put.as - http://reverse.put.as
+ All rights reserved.
+
+ This plugin will disable the m3u processing when you add folders to your library.
+ iTunes since version 10.4 adds m3u to playlists making a mess out of it.
+
+ Copy to ~/Library/iTunes/iTunes Plug-ins .
+
+ It will patch the m3u and m3u8 strings when iTunes starts. To disable in runtime
+ just choose Plugin options. To reactivate choose Show Visualizer.
+
+ This new version code is much smaller and less error prone. Should work until
+ Apple patches their plugin system and creates a secure API.
+
+ Have fun,
+ fG!
+ 
