@@ -15,7 +15,7 @@
  *
  * Disable m3u - An iTunes plugin to disable m3u playlists processing
  *
- * Copyright (c) fG!, 2011, 2012, 2013 - reverser@put.as - http://reverse.put.as
+ * Copyright (c) fG!, 2011, 2012, 2013, 2014 - reverser@put.as - http://reverse.put.as
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,31 +59,49 @@
 #include <mach-o/dyld.h>
 #include <mach-o/getsect.h>
 
-#define EXIT_ON_MACH_ERROR(msg, retval) \
-if (kr != KERN_SUCCESS) { mach_error(msg ":" , kr); exit((retval)); }
-
 #define DEBUG 1
 
+#define ERROR_MSG(fmt, ...) fprintf(stderr, "[ERROR] " fmt " \n", ## __VA_ARGS__)
+#define OUTPUT_MSG(fmt, ...) fprintf(stdout, fmt " \n", ## __VA_ARGS__)
+#if DEBUG == 0
+#   define DEBUG_MSG(fmt, ...) do {} while (0)
+#else
+#   define DEBUG_MSG(fmt, ...) fprintf(stdout, "[DEBUG] " fmt "\n", ## __VA_ARGS__)
+#endif
+
 // local functions
-static void patchmemory(mach_vm_address_t address);
-static void unpatchmemory(struct header_info *hi);
+static int patchmemory(mach_vm_address_t address);
+static int unpatchmemory(struct header_info *hi);
 static int find_image(struct header_info *hi);
-static void find_and_patch_addresses(struct header_info *hi);
+static int find_and_patch_addresses(struct header_info *hi);
 
 #pragma mark The exported functions
 
 void
 disable_m3u_processing(struct header_info *hi)
 {
-    if (find_image(hi)) return;
-    find_and_patch_addresses(hi);
-    hi->active = 0;
+    if (find_image(hi) != 0)
+    {
+        ERROR_MSG("Failed to find valid image.");
+        return;
+    }
+    
+    if (find_and_patch_addresses(hi) != 0)
+    {
+        ERROR_MSG("Failed to find and patch addresses.");
+        return;
+    }
+    hi->active = 1;
 }
 
 void
 enable_m3u_processing(struct header_info *hi)
 {
-    unpatchmemory(hi);
+    if (unpatchmemory(hi) != 0)
+    {
+        ERROR_MSG("Failed to restore original bytes.");
+        return;
+    }
     hi->active = 0;
 }
 
@@ -92,79 +110,87 @@ enable_m3u_processing(struct header_info *hi)
 /*
  * patch addresses by modifying m3u string to m5u
  */
-void
+int
 patchmemory(mach_vm_address_t address)
 {
 	kern_return_t kr = 0;
-	mach_port_t myself = 0;
-	// get a send right
-	myself = mach_task_self();
-#if DEBUG
-	printf("[DEBUG] Changing memory protections...\n");
-#endif
 	// change memory protection
-	kr = mach_vm_protect(myself, address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
-	
+	kr = mach_vm_protect(mach_task_self(), address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+    if (kr != KERN_SUCCESS)
+    {
+        ERROR_MSG("Failed to change memory protection.");
+        return -1;
+    }
 	// the new byte to write
 	uint8_t opcode = 0x35;
 	// number of bytes to write
 	mach_vm_size_t len = 1;
-#if DEBUG
-	printf("[DEBUG] Patching bytes...\n");
-#endif
+	DEBUG_MSG("Patching bytes...\n");
 	// and write the new byte (strings will be modified to m5u and m5u8)
-	kr = mach_vm_write(myself, address+1, (vm_offset_t)&opcode, len);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+	kr = mach_vm_write(mach_task_self(), address+1, (vm_offset_t)&opcode, len);
+    if (kr != KERN_SUCCESS)
+    {
+        ERROR_MSG("Failed to write to memory.");
+        return -1;
+    }
     // restore original protections
-	kr = mach_vm_protect(myself, address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
-	EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+	kr = mach_vm_protect(mach_task_self(), address, (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
+    if (kr != KERN_SUCCESS)
+    {
+        ERROR_MSG("Failed to change memory protection.");
+        return -1;
+    }
+    return 0;
 }
 
 /*
  * iterate over the patch_addresses array and restore original byte
  */
-void
+int
 unpatchmemory(struct header_info *hi)
 {
 	kern_return_t kr = 0;
-	mach_port_t myself = 0;
-	// get a send right
-	myself = mach_task_self();
-#if DEBUG
-	printf("[DEBUG] Changing memory protections...\n");
-#endif
     int index = 0;
     while (hi->patch_addresses[index] != 0)
     {
         printf("Patching %p\n", (void*)hi->patch_addresses[index]);
         // change memory protection
-        kr = mach_vm_protect(myself, hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
-        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        kr = mach_vm_protect(mach_task_self(), hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+        if (kr != KERN_SUCCESS)
+        {
+            ERROR_MSG("Failed to change memory protection.");
+            return -1;
+        }
         // the new byte to write
         uint8_t opcode = 0x33;
         // number of bytes to write
         mach_vm_size_t len = 1;
-#if DEBUG
-        printf("[DEBUG] Unpatching bytes...\n");
-#endif
+        DEBUG_MSG("Restoring original bytes...\n");
         // and write the new byte (strings will be modified to m3u and m3u8)
-        kr = mach_vm_write(myself, hi->patch_addresses[index]+1, (vm_offset_t)&opcode, len);
-        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        kr = mach_vm_write(mach_task_self(), hi->patch_addresses[index]+1, (vm_offset_t)&opcode, len);
+        if (kr != KERN_SUCCESS)
+        {
+            ERROR_MSG("Failed to write to memory.");
+            return -1;
+        }
         // restore original protections
-        kr = mach_vm_protect(myself, hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
-        EXIT_ON_MACH_ERROR("mach_vm_protect", kr);
+        kr = mach_vm_protect(mach_task_self(), hi->patch_addresses[index], (mach_vm_size_t)8, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
+        if (kr != KERN_SUCCESS)
+        {
+            ERROR_MSG("Failed to change memory protection.");
+            return -1;
+        }
         index++;
     }
     memset(hi->patch_addresses, '\0', 16*sizeof(mach_vm_address_t));
+    return 0;
 }
-
 
 /*
  * iterate over __cstring section to find location of m3u and m3u8 strings, and patch'em!
  * could be better :-)
  */
-void
+int
 find_and_patch_addresses(struct header_info *hi)
 {
     // get pointer to the __cstring section
@@ -182,24 +208,30 @@ find_and_patch_addresses(struct header_info *hi)
 		{
             mach_vm_address_t patch_addr = cstring_addr + w;
             hi->patch_addresses[index++] = patch_addr;
-            patchmemory(patch_addr);
-#if DEBUG
-			printf("[DEBUG] Found m3u address to be patched %p\n", (void*)patch_addr);
-#endif
+            DEBUG_MSG("Found m3u address to be patched %p\n", (void*)patch_addr);
+            if (patchmemory(patch_addr) != 0)
+            {
+                ERROR_MSG("Failed to patch m3u.");
+                return -1;
+            }
+			
 		}
 		// match first bytes of m3u8
 		else if (*(int*)cstring_mem == 0x3875336d)
 		{
             mach_vm_address_t patch_addr = cstring_addr + w;
             hi->patch_addresses[index++] = patch_addr;
-            patchmemory(patch_addr);
-#if DEBUG
-			printf("[DEBUG] Found m3u8 address to be patched %p\n", (void*)patch_addr);
-#endif
+            DEBUG_MSG("Found m3u8 address to be patched %p\n", (void*)patch_addr);
+            if (patchmemory(patch_addr) != 0)
+            {
+                ERROR_MSG("Failed to patch m3u8.");
+                return -1;
+            }
 		}
 		// move to the next byte in the array
 		cstring_mem++;
 	}
+    return 0;
 }
 
 
@@ -215,16 +247,26 @@ find_image(struct header_info *hi)
     // XXX: this can be made error-proof by iterating all images and match iTunes
     const struct mach_header *mh = _dyld_get_image_header(0);
     intptr_t aslr_slide = _dyld_get_image_vmaddr_slide(0);
-#if DEBUG
-    printf("[DEBUG] Aslr slide is %p\n", (void*)aslr_slide);
-#endif
+    DEBUG_MSG("Aslr slide is %p\n", (void*)aslr_slide);
 
+    hi->mh = (const struct mach_header_64*)mh;
+    hi->aslr_slide = aslr_slide;
+    
     // compute iTunes image size
     uint64_t image_size = 0;
-    if (mh->magic != MH_MAGIC_64) return 1;
+    if (mh->magic != MH_MAGIC_64)
+    {
+        return -1;
+    }
+    
+    if (mh->ncmds == 0 || mh->sizeofcmds == 0)
+    {
+        ERROR_MSG("Invalid number of commands or size.");
+    }
     
     struct load_command *load_cmd = NULL;
     char *load_cmd_addr = (char*)mh + sizeof(struct mach_header_64);
+    
     for (uint32_t i = 0; i < mh->ncmds; i++)
     {
         load_cmd = (struct load_command*)load_cmd_addr;
@@ -236,9 +278,14 @@ find_image(struct header_info *hi)
         load_cmd_addr += load_cmd->cmdsize;
     }
     
-    hi->mh = (const struct mach_header_64*)mh;
-    hi->image_size = image_size;
-    hi->aslr_slide = aslr_slide;
-    memset(hi->patch_addresses, '\0', 16*sizeof(mach_vm_address_t));
-	return 0;
+    if (image_size != 0)
+    {
+        hi->image_size = image_size;
+        return 0;
+    }
+    else
+    {
+        /* failure */
+        return -1;
+    }
 }

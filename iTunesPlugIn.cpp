@@ -91,7 +91,7 @@ static OSStatus VisualPluginHandler(OSType message,VisualPluginMessageInfo *mess
 	visualPluginData = (VisualPluginData*) refCon;
 	
 	status = noErr;
-	static struct header_info header_info;
+    static struct header_info header_info = {0};
     
 	switch ( message )
 	{

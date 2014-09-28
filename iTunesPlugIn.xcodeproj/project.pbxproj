@@ -14,7 +14,6 @@
 		DC2667950BD9410900B4ED68 /* iTunesAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01285C0200CC31B17F000001 /* iTunesAPI.h */; };
 		DC2667960BD9410900B4ED68 /* iTunesVisualAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01285C0300CC31B17F000001 /* iTunesVisualAPI.h */; };
 		DC2667990BD9410900B4ED68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
-		DC26679A0BD9410900B4ED68 /* ReadMe.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 0103924500CE94127F000001 /* ReadMe.rtf */; };
 		DC26679C0BD9410900B4ED68 /* iTunesPlugInMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01285C0700CC38597F000001 /* iTunesPlugInMac.mm */; };
 		DC8CE6DF13A31B4500963E07 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8CE6DE13A31B4500963E07 /* Cocoa.framework */; };
 		DC8CE75A13A34EB500963E07 /* iTunesPlugIn.h in Headers */ = {isa = PBXBuildFile; fileRef = DC8CE75913A34EB500963E07 /* iTunesPlugIn.h */; };
@@ -35,7 +34,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0103924500CE94127F000001 /* ReadMe.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = ReadMe.rtf; sourceTree = "<group>"; };
 		01285C0200CC31B17F000001 /* iTunesAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesAPI.h; sourceTree = "<group>"; };
 		01285C0300CC31B17F000001 /* iTunesVisualAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesVisualAPI.h; sourceTree = "<group>"; };
 		01285C0700CC38597F000001 /* iTunesPlugInMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iTunesPlugInMac.mm; sourceTree = "<group>"; };
@@ -78,7 +76,6 @@
 		089C166AFE841209C02AAC07 /* iTunesPlugIn */ = {
 			isa = PBXGroup;
 			children = (
-				0103924500CE94127F000001 /* ReadMe.rtf */,
 				7B0D284917145BDF00EF8EC1 /* README */,
 				08FB77AFFE84173DC02AAC07 /* Source */,
 				089C167CFE841241C02AAC07 /* Resources */,
@@ -197,7 +194,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC2667990BD9410900B4ED68 /* InfoPlist.strings in Resources */,
-				DC26679A0BD9410900B4ED68 /* ReadMe.rtf in Resources */,
 				7B0D284A17145BDF00EF8EC1 /* README in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,7 +230,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
 			};
 			name = Development;
@@ -243,7 +239,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
 			};
 			name = Deployment;

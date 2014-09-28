@@ -15,7 +15,7 @@
  *
  * Disable m3u - An iTunes plugin to disable m3u playlists processing
  *
- * Copyright (c) fG!, 2011, 2012, 2013 - reverser@put.as - http://reverse.put.as
+ * Copyright (c) fG!, 2011, 2012, 2013, 2014 - reverser@put.as - http://reverse.put.as
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
